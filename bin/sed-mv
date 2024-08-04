@@ -1,0 +1,24 @@
+#!/bin/sh -e
+##:
+#h: Usage: sed-mv 's/FROM/TO/' < FILES
+#h:
+#h: Read a list of paths from the standard input, modify it's name
+#h: using a SED command, if it changes move the file.
+#h:
+#h: Example: find . -iname '*.cxx' | sed-mv 's/\.cxx$/\.cc$/'
+##:
+sed_mv() {
+    local sed="$1" fr to
+    while read -r fr; do
+        to="$(printf '%s\n' "${fr}" | sed "${sed}")"
+        if test ! @"${fr}" = @"${to}"; then
+            mv "${fr}" "${to}"
+        fi
+    done
+}
+if test @"${SCRNAME:-$(basename "$0")}" = @"sed-mv";then
+    case "${1}" in
+        ''|-h|--help) sed -n 's/^ *#h: \{0,1\}//p' "$0";;
+        *)            sed_mv "$@"; exit 0;;
+    esac
+fi
